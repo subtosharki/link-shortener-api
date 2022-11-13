@@ -66,4 +66,13 @@ export class AppService {
       statusCode: 301,
     };
   }
+  public async getUrlInfo(tag: string) {
+    const longUrl = await this.prisma.shortUrl.findFirst({
+      where: {
+        tag,
+      },
+    });
+    if (!longUrl) throw new BadRequestException('Invalid tag');
+    return longUrl;
+  }
 }

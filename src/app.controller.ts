@@ -30,4 +30,8 @@ export class AppController {
   async shortURL(@Body() body: ShortenUrlDto, @Ip() ip: string) {
     return this.appService.generateShortenedLink(body, ip);
   }
+  @Get('/url-info/:id')
+  async getUrlInfo(@Param('id') tag: string) {
+    return await this.appService.getUrlInfo(tag);
+  }
 }
