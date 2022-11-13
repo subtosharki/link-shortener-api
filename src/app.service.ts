@@ -41,11 +41,21 @@ export class AppService {
     }
   }
   public async getLink(tag: string) {
-    const { url } = await this.prisma.shortUrl.findFirst({
+    let { url } = await this.prisma.shortUrl.findFirst({
       where: {
         tag,
       },
     });
+    let re = new RegExp('^(http|https)://', 'i');
+    if (!re.test(url)) {
+      url = 'http://' + url;
+    }
+    re = new RegExp(
+      '((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)',
+    );
+    if (!re.test(url)) {
+      throw new BadRequestException('Invalid Tag');
+    }
     return {
       url,
       statusCode: 301,
