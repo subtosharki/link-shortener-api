@@ -12,4 +12,6 @@ model ShortUrl {
   url       String
   tag      String   @unique
   createdAt DateTime @default(now())
+  ip       String
+  clicks   Int      @default(0)
 }

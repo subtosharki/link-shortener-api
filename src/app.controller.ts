@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Ip,
   Param,
   Post,
   Redirect,
@@ -26,7 +27,7 @@ export class AppController {
   }
   @Post('/shorten-url')
   @UsePipes(new ValidationPipe())
-  async shortURL(@Body() body: ShortenUrlDto) {
-    return this.appService.generateShortenedLink(body);
+  async shortURL(@Body() body: ShortenUrlDto, @Ip() ip: string) {
+    return this.appService.generateShortenedLink(body, ip);
   }
 }

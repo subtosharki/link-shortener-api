@@ -9,6 +9,18 @@ import { ShortenUrlDto } from './app.dto';
 @Injectable()
 export class AppService {
   constructor(private prisma: PrismaService) {}
+  private async upTagClick(tag: string) {
+    return await this.prisma.shortUrl.update({
+      where: {
+        tag,
+      },
+      data: {
+        clicks: {
+          increment: 1,
+        },
+      },
+    });
+  }
   private genFiveLetterString() {
     let string = '';
     for (let i = 0; i < 5; i++) {
@@ -18,7 +30,7 @@ export class AppService {
     }
     return string;
   }
-  public async generateShortenedLink({ url }: ShortenUrlDto) {
+  public async generateShortenedLink({ url }: ShortenUrlDto, ip: string) {
     let re = new RegExp('^(http|https)://', 'i');
     if (!re.test(url)) {
       url = 'http://' + url;
@@ -34,6 +46,7 @@ export class AppService {
         data: {
           url,
           tag: this.genFiveLetterString(),
+          ip,
         },
       });
     } catch (error) {
@@ -47,6 +60,7 @@ export class AppService {
       },
     });
     if (!longUrl) throw new BadRequestException('Invalid tag');
+    await this.upTagClick(tag);
     return {
       url: longUrl.url,
       statusCode: 301,
