@@ -41,14 +41,14 @@ export class AppService {
     }
   }
   public async getLink(tag: string) {
-    const url = await this.prisma.shortUrl.findFirst({
+    const longUrl = await this.prisma.shortUrl.findFirst({
       where: {
         tag,
       },
     });
-    if (!url) throw new BadRequestException('Invalid tag');
+    if (!longUrl) throw new BadRequestException('Invalid tag');
     return {
-      url,
+      url: longUrl.url,
       statusCode: 301,
     };
   }
