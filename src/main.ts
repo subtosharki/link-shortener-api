@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 3000);
   const options = new DocumentBuilder()
     .setTitle('Shorten URL API')
     .setDescription('The Shorten URL API documentation')
