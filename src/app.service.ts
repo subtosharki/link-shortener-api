@@ -18,7 +18,6 @@ export class AppService {
     }
     return string;
   }
-
   public async generateShortenedLink({ url }: ShortenUrlDto) {
     let re = new RegExp('^(http|https)://', 'i');
     if (!re.test(url)) {

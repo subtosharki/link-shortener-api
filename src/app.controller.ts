@@ -21,8 +21,8 @@ export class AppController {
   @Get('/:id')
   @Redirect()
   @HttpCode(HttpStatus.PERMANENT_REDIRECT)
-  async getLink(@Param('id') id: string) {
-    return await this.appService.getLink(id);
+  async getLink(@Param('id') tag: string) {
+    return await this.appService.getLink(tag);
   }
   @Post('/shorten-url')
   @UsePipes(new ValidationPipe())
