@@ -30,25 +30,34 @@ export class AppService {
     }
     return string;
   }
-  public async generateShortenedLink({ url }: ShortenUrlDto, ip: string) {
-    let re = new RegExp('^(http|https)://', 'i');
-    if (!re.test(url)) {
-      url = 'http://' + url;
-    }
-    re = new RegExp(
-      '((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)',
-    );
-    if (!re.test(url)) {
-      throw new BadRequestException('Invalid URL');
-    }
+  public async generateShortenedLink(
+    { url, customTag }: ShortenUrlDto,
+    ip: string,
+  ) {
     try {
-      return await this.prisma.shortUrl.create({
-        data: {
-          url,
-          tag: this.genFiveLetterString(),
-          ip,
-        },
-      });
+      if (!customTag) {
+        return await this.prisma.shortUrl.create({
+          data: {
+            url,
+            tag: this.genFiveLetterString(),
+            ip,
+          },
+        });
+      } else {
+        const tagExists = await this.prisma.shortUrl.findFirst({
+          where: {
+            tag: customTag,
+          },
+        });
+        if (tagExists) throw new BadRequestException('Tag already exists');
+        return await this.prisma.shortUrl.create({
+          data: {
+            url,
+            tag: customTag,
+            ip,
+          },
+        });
+      }
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -67,12 +76,12 @@ export class AppService {
     };
   }
   public async getUrlInfo(tag: string) {
-    const longUrl = await this.prisma.shortUrl.findFirst({
+    const urlInfo = await this.prisma.shortUrl.findFirst({
       where: {
         tag,
       },
     });
-    if (!longUrl) throw new BadRequestException('Invalid tag');
-    return longUrl;
+    if (!urlInfo) throw new BadRequestException('Invalid tag');
+    return urlInfo;
   }
 }
