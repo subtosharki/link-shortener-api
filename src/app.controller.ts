@@ -7,13 +7,17 @@ import {
   Param,
   Post,
   Redirect,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiTags } from '@nestjs/swagger';
+import { ShortenUrlDto } from './app.dto';
 
+@ApiTags('Shorten URL')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
-
   @Get('/:id')
   @Redirect()
   @HttpCode(HttpStatus.PERMANENT_REDIRECT)
@@ -21,7 +25,8 @@ export class AppController {
     return await this.appService.getLink(id);
   }
   @Post('/shorten-url')
-  async shortURL(@Body('url') url: string) {
-    return this.appService.generateShortenedLink(url);
+  @UsePipes(new ValidationPipe())
+  async shortURL(@Body() body: ShortenUrlDto) {
+    return this.appService.generateShortenedLink(body);
   }
 }

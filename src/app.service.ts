@@ -4,6 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ShortenUrlDto } from './app.dto';
 
 @Injectable()
 export class AppService {
@@ -18,21 +19,21 @@ export class AppService {
     return string;
   }
 
-  public async generateShortenedLink(link: string) {
+  public async generateShortenedLink({ url }: ShortenUrlDto) {
     let re = new RegExp('^(http|https)://', 'i');
-    if (!re.test(link)) {
-      link = 'http://' + link;
+    if (!re.test(url)) {
+      url = 'http://' + url;
     }
     re = new RegExp(
       '((([A-Za-z]{3,9}:(?:\\/\\/)?)(?:[-;:&=\\+\\$,\\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\\+\\$,\\w]+@)[A-Za-z0-9.-]+)((?:\\/[\\+~%\\/.\\w-_]*)?\\??(?:[-\\+=&;%@.\\w_]*)#?(?:[\\w]*))?)',
     );
-    if (!re.test(link)) {
+    if (!re.test(url)) {
       throw new BadRequestException('Invalid URL');
     }
     try {
       return await this.prisma.shortUrl.create({
         data: {
-          url: link,
+          url,
           tag: this.genFiveLetterString(),
         },
       });
