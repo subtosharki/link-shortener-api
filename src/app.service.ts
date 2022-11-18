@@ -8,7 +8,7 @@ import { ShortenUrlDto } from './app.dto';
 
 @Injectable()
 export class AppService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
   private async upTagClick(tag: string) {
     return await this.prisma.shortUrl.update({
       where: {
