@@ -6,7 +6,7 @@ import { RedirectData } from '../types';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly prisma: PrismaService) {}
+  public constructor(private readonly prisma: PrismaService) {}
   private async upTagClick(tag: string): Promise<ShortUrl> {
     return await this.prisma.shortUrl.update({
       where: {

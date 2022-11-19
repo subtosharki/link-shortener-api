@@ -20,23 +20,23 @@ import { RedirectData } from '../types';
 @ApiTags('Shorten URL')
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  public constructor(private readonly appService: AppService) {}
   @Get('/:id')
   @Redirect()
   @HttpCode(HttpStatus.PERMANENT_REDIRECT)
-  async getLink(@Param('id') tag: string): Promise<RedirectData> {
+  public async getLink(@Param('id') tag: string): Promise<RedirectData> {
     return await this.appService.getLink(tag);
   }
   @Post('/shorten-url')
   @UsePipes(new ValidationPipe())
-  async shortURL(
+  public async shortURL(
     @Body() body: ShortenUrlDto,
     @Ip() ip: string,
   ): Promise<ShortUrl> {
     return this.appService.generateShortenedLink(body, ip);
   }
   @Get('/url-info/:id')
-  async getUrlInfo(@Param('id') tag: string): Promise<ShortUrl> {
+  public async getUrlInfo(@Param('id') tag: string): Promise<ShortUrl> {
     return await this.appService.getUrlInfo(tag);
   }
 }
