@@ -1,15 +1,13 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShortenUrlDto } from './app.dto';
+import type { ShortUrl } from '@prisma/client';
+import { RedirectData } from '../types';
 
 @Injectable()
 export class AppService {
   constructor(private readonly prisma: PrismaService) {}
-  private async upTagClick(tag: string) {
+  private async upTagClick(tag: string): Promise<ShortUrl> {
     return await this.prisma.shortUrl.update({
       where: {
         tag,
@@ -34,35 +32,31 @@ export class AppService {
     { url, customTag }: ShortenUrlDto,
     ip: string,
   ) {
-    try {
-      if (!customTag) {
-        return await this.prisma.shortUrl.create({
-          data: {
-            url,
-            tag: this.genFiveLetterString(),
-            ip,
-          },
-        });
-      } else {
-        const tagExists = await this.prisma.shortUrl.findFirst({
-          where: {
-            tag: customTag,
-          },
-        });
-        if (tagExists) throw new BadRequestException('Tag already exists');
-        return await this.prisma.shortUrl.create({
-          data: {
-            url,
-            tag: customTag,
-            ip,
-          },
-        });
-      }
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    if (!customTag) {
+      return await this.prisma.shortUrl.create({
+        data: {
+          url,
+          tag: this.genFiveLetterString(),
+          ip,
+        },
+      });
+    } else {
+      const tagExists = await this.prisma.shortUrl.findFirst({
+        where: {
+          tag: customTag,
+        },
+      });
+      if (tagExists) throw new BadRequestException('Tag already exists');
+      return await this.prisma.shortUrl.create({
+        data: {
+          url,
+          tag: customTag,
+          ip,
+        },
+      });
     }
   }
-  public async getLink(tag: string) {
+  public async getLink(tag: string): Promise<RedirectData> {
     const longUrl = await this.prisma.shortUrl.findFirst({
       where: {
         tag,
