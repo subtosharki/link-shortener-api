@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ShortenUrlDto } from './app.dto';
 import type { ShortUrl } from '@prisma/client';
@@ -19,7 +23,7 @@ export class AppService {
       },
     });
   }
-  private genFiveLetterString() {
+  private genFiveLetterString(): string {
     let string = '';
     for (let i = 0; i < 5; i++) {
       const random = Math.floor(Math.random() * 26);
@@ -31,7 +35,7 @@ export class AppService {
   public async generateShortenedLink(
     { url, customTag }: ShortenUrlDto,
     ip: string,
-  ) {
+  ): Promise<ShortUrl> {
     if (!customTag) {
       return await this.prisma.shortUrl.create({
         data: {
@@ -69,7 +73,7 @@ export class AppService {
       statusCode: 301,
     };
   }
-  public async getUrlInfo(tag: string) {
+  public async getUrlInfo(tag: string): Promise<ShortUrl> {
     const urlInfo = await this.prisma.shortUrl.findFirst({
       where: {
         tag,
@@ -77,5 +81,25 @@ export class AppService {
     });
     if (!urlInfo) throw new BadRequestException('Invalid tag');
     return urlInfo;
+  }
+  public async deleteUrl(tag: string, ip: string): Promise<ShortUrl> {
+    const urlInfo = await this.prisma.shortUrl.findFirst({
+      where: {
+        tag,
+      },
+      select: {
+        ip: true,
+      },
+    });
+    if (!urlInfo) throw new BadRequestException('Invalid tag');
+    if (urlInfo.ip !== ip)
+      throw new ForbiddenException(
+        'Invalid Permissions (IP does not match URL owners IP)',
+      );
+    return await this.prisma.shortUrl.delete({
+      where: {
+        tag,
+      },
+    });
   }
 }

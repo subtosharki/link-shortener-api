@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -38,5 +39,12 @@ export class AppController {
   @Get('/url-info/:id')
   public async getUrlInfo(@Param('id') tag: string): Promise<ShortUrl> {
     return await this.appService.getUrlInfo(tag);
+  }
+  @Delete('/:id')
+  public async deleteUrl(
+    @Param('id') tag: string,
+    @Ip() ip: string,
+  ): Promise<ShortUrl> {
+    return await this.appService.deleteUrl(tag, ip);
   }
 }
