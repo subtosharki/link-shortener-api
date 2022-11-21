@@ -61,11 +61,14 @@ export class AppService {
     }
   }
   public async getLink(tag: string): Promise<RedirectData> {
-    const longUrl = await this.prisma.shortUrl.findFirst({
-      where: {
-        tag,
-      },
-    });
+    const [longUrl] = await Promise.all([
+      this.prisma.shortUrl.findFirst({
+        where: {
+          tag,
+        },
+      }),
+      this.upTagClick(tag),
+    ]);
     if (!longUrl) throw new BadRequestException('Invalid tag');
     await this.upTagClick(tag);
     return {
