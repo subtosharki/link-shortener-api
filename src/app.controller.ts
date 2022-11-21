@@ -13,8 +13,16 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiTags } from '@nestjs/swagger';
-import { ShortenUrlDto } from './app.dto';
+import {
+  ApiMovedPermanentlyResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import {
+  RedirectReturnData,
+  ShortenUrlDto,
+  ShortURLReturnData,
+} from './app.dto';
 import { ShortUrl } from '@prisma/client';
 import { RedirectData } from '../types';
 
@@ -22,12 +30,17 @@ import { RedirectData } from '../types';
 @Controller()
 export class AppController {
   public constructor(private readonly appService: AppService) {}
+  @ApiMovedPermanentlyResponse({
+    description: 'Get a shortened URL by the ID',
+    type: RedirectReturnData,
+  })
   @Get('/:id')
   @Redirect()
   @HttpCode(HttpStatus.PERMANENT_REDIRECT)
   public async getLink(@Param('id') tag: string): Promise<RedirectData> {
     return await this.appService.getLink(tag);
   }
+  @ApiOkResponse({ description: 'Shorten a URL', type: ShortURLReturnData })
   @Post('/shorten-url')
   @UsePipes(new ValidationPipe())
   public async shortURL(
@@ -36,10 +49,18 @@ export class AppController {
   ): Promise<ShortUrl> {
     return this.appService.generateShortenedLink(body, ip);
   }
-  @Get('/url-info/:id')
-  public async getUrlInfo(@Param('id') tag: string): Promise<ShortUrl> {
+  @ApiOkResponse({
+    description: 'Returns data about a short URL',
+    type: ShortURLReturnData,
+  })
+  @Get('/url-info/:tag')
+  public async getUrlInfo(@Param('tag') tag: string): Promise<ShortUrl> {
     return await this.appService.getUrlInfo(tag);
   }
+  @ApiOkResponse({
+    description: 'Deletes the short URL',
+    type: ShortURLReturnData,
+  })
   @Delete('/:id')
   public async deleteUrl(
     @Param('id') tag: string,
