@@ -70,7 +70,6 @@ export class AppService {
       this.upTagClick(tag),
     ]);
     if (!longUrl) throw new BadRequestException('Invalid tag');
-    await this.upTagClick(tag);
     return {
       url: longUrl.url,
       statusCode: 301,
