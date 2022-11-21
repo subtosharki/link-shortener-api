@@ -12,11 +12,11 @@ export class ShortenUrlDto {
   @IsNotEmpty()
   @IsUrl()
   @IsString()
-  url: string;
+  public url: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   @MaxLength(10)
-  customTag?: string;
+  public customTag?: string;
 }
