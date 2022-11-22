@@ -12,6 +12,12 @@ import { RedirectData } from '../types';
 export class AppService {
   public constructor(private readonly prisma: PrismaService) {}
   private async upTagClick(tag: string): Promise<ShortUrl> {
+    const user = await this.prisma.shortUrl.findFirst({
+      where: {
+        tag,
+      }
+    });
+    if (!user) throw new BadRequestException('Invalid tag');
     return await this.prisma.shortUrl.update({
       where: {
         tag,
